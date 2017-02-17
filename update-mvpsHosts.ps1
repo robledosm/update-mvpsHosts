@@ -5,7 +5,7 @@ function Unzip {
 
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
-
+ 
 function BackupLocalHost {
     param([string]$hostFilePath)
     Copy-Item $hostFilePath "$hostFilePath.bak_$(Get-Date -format FileDate)"
