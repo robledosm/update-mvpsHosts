@@ -6,6 +6,11 @@ function Unzip {
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
 
+function BackupLocalHost {
+    param([string]$hostFilePath)
+    Copy-Item $hostFilePath "$hostFilePath.bak_$(Get-Date -format FileDate)"
+}
+
 function UpdateHost {
     param([string]$hostFilePath, [string[]]$mvpsFileContents)
     $hostFileContents = Get-Content -Path $hostFilePath
@@ -52,6 +57,7 @@ $choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentL
 
 $decision = $Host.UI.PromptForChoice($message, $question, $choices, 1)
 if ($decision -eq 0) {
+    BackupLocalHost -hostfilePath "$basePath\hosts"
     UpdateHost -hostFilePath "$basePath\hosts" -mvpsFileContents $mvpsFileContents
 } else {
     Write-Host 'Cancelled: Local Host file has NOT been updated'
