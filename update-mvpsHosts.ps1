@@ -1,5 +1,20 @@
-﻿#Requires -RunAsAdministrator
-Add-Type -AssemblyName System.IO.Compression.FileSystem
+﻿Add-Type -AssemblyName System.IO.Compression.FileSystem
+param([switch]$Elevated)
+function checkAdmin {
+    $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
+    $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+}
+
+if ((checkAdmin) -eq $false)  {
+    if ($elevated)
+    {
+        # could not elevate, quit
+    }
+    else {
+        Start-Process powershell.exe -Verb RunAs -ArgumentList ('-noprofile -noexit -file "{0}" -elevated' -f ($myinvocation.MyCommand.Definition))
+    }
+    exit
+}
 function Unzip {
     param([string]$zipfile, [string]$outpath)
 
