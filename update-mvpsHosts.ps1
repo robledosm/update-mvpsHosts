@@ -44,36 +44,40 @@ function UpdateHost {
     Write-Host "Done: Local Host file updated" 
 }
 
-$basePath = "$env:windir\system32\drivers\etc"
-$mvpsHostZipFilePath = "$basePath\mvps.zip"
-if (Test-Path("$mvpsHostZipFilePath")) { Remove-Item $mvpsHostZipFilePath -Force }
-$mvpsHostUnzipFolderPath = "$basePath\mvps"
-if (Test-Path("$mvpsHostUnzipFolderPath")) { Remove-Item $mvpsHostUnzipFolderPath -Recurse -Force }
+function main() {
+    $basePath = "$env:windir\system32\drivers\etc"
+    $mvpsHostZipFilePath = "$basePath\mvps.zip"
+    if (Test-Path("$mvpsHostZipFilePath")) { Remove-Item $mvpsHostZipFilePath -Force }
+    $mvpsHostUnzipFolderPath = "$basePath\mvps"
+    if (Test-Path("$mvpsHostUnzipFolderPath")) { Remove-Item $mvpsHostUnzipFolderPath -Recurse -Force }
 
-$mvpsHostUrl = "http://winhelp2002.mvps.org/hosts.zip"
+    $mvpsHostUrl = "http://winhelp2002.mvps.org/hosts.zip"
 
-Write-Host "Downloading latest mvps host file from $mvpsHostUrl" 
-Invoke-WebRequest $mvpsHostUrl -OutFile $mvpsHostZipFilePath
-Unzip -zipfile $mvpsHostZipFilePath -outpath $mvpsHostUnzipFolderPath
-Remove-Item $mvpsHostZipFilePath -Force
+    Write-Host "Downloading latest mvps host file from $mvpsHostUrl" 
+    Invoke-WebRequest $mvpsHostUrl -OutFile $mvpsHostZipFilePath
+    Unzip -zipfile $mvpsHostZipFilePath -outpath $mvpsHostUnzipFolderPath
+    Remove-Item $mvpsHostZipFilePath -Force
 
-$mvpsFileContents = Get-Content -Path  "$mvpsHostUnzipFolderPath\hosts"
-$mvpsLicenseFileContents = Get-Content -Path  "$mvpsHostUnzipFolderPath\license.txt"
-Remove-Item $mvpsHostUnzipFolderPath -Recurse -Force
+    $mvpsFileContents = Get-Content -Path  "$mvpsHostUnzipFolderPath\hosts"
+    $mvpsLicenseFileContents = Get-Content -Path  "$mvpsHostUnzipFolderPath\license.txt"
+    Remove-Item $mvpsHostUnzipFolderPath -Recurse -Force
 
-Write-Host $($mvpsLicenseFileContents -join "`r`n" | Out-String)
+    Write-Host $($mvpsLicenseFileContents -join "`r`n" | Out-String)
 
-$message  = 'License'
-$question = 'MVPS Host is protected by the above license. Are you sure you want to proceed?'
+    $message  = 'License'
+    $question = 'MVPS Host is protected by the above license. Are you sure you want to proceed?'
 
-$choices = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
-$choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList '&Yes'))
-$choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList '&No'))
+    $choices = New-Object Collections.ObjectModel.Collection[Management.Automation.Host.ChoiceDescription]
+    $choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList '&Yes'))
+    $choices.Add((New-Object Management.Automation.Host.ChoiceDescription -ArgumentList '&No'))
 
-$decision = $Host.UI.PromptForChoice($message, $question, $choices, 1)
-if ($decision -eq 0) {
-    BackupLocalHost -hostfilePath "$basePath\hosts"
-    UpdateHost -hostFilePath "$basePath\hosts" -mvpsFileContents $mvpsFileContents
-} else {
-    Write-Host 'Cancelled: Local Host file has NOT been updated'
+    $decision = $Host.UI.PromptForChoice($message, $question, $choices, 1)
+    if ($decision -eq 0) {
+        BackupLocalHost -hostfilePath "$basePath\hosts"
+        UpdateHost -hostFilePath "$basePath\hosts" -mvpsFileContents $mvpsFileContents
+    } else {
+        Write-Host 'Cancelled: Local Host file has NOT been updated'
+    }
 }
+
+main
