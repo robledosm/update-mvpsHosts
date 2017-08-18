@@ -1,10 +1,8 @@
 ﻿param([switch]$Elevated)
-Add-Type -AssemblyName System.IO.Compression.FileSystem
 function checkAdmin {
     $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
     $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
 }
-
 if ((checkAdmin) -eq $false)  {
     if ($elevated)
     {
@@ -17,10 +15,9 @@ if ((checkAdmin) -eq $false)  {
 }
 function Unzip {
     param([string]$zipfile, [string]$outpath)
-
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
- 
 function BackupLocalHost {
     param([string]$hostFilePath)
     Copy-Item $hostFilePath "$hostFilePath.bak_$(Get-Date -format FileDate)"
