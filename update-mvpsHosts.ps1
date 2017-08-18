@@ -1,5 +1,5 @@
-﻿Add-Type -AssemblyName System.IO.Compression.FileSystem
-param([switch]$Elevated)
+﻿param([switch]$Elevated)
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 function checkAdmin {
     $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
     $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
